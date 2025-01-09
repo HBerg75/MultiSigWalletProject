@@ -149,7 +149,7 @@ Le contrat utilise plusieurs événements pour assurer la traçabilité :
 
 ## Auteurs
 
-- **[Votre Nom]** : Développeur du projet.
+- **[Hberg75]** : Développeur du projet.
 
 ---
 
