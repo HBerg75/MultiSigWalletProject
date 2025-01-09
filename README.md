@@ -36,7 +36,7 @@ Ce projet implémente un portefeuille multisignature (MultiSig Wallet) développ
 
 1. **Cloner le projet** :
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/HBerg75/MultiSigWalletProject.git
    cd MultiSigWalletProject
    ```
 
