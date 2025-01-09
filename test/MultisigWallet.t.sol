@@ -116,4 +116,62 @@ contract MultiSigWalletTest is Test {
     assertEq(contractBalance, 1 ether, "Contract balance incorrect");
     }
 
+     // Test 6 : Vérifie qu'un signataire non autorisé ne peut pas soumettre une transaction.
+    function testNonSignerCannotSubmitTransaction() public {
+        vm.prank(nonSigner); // Simule un non-signataire
+        vm.expectRevert("Not a signer");
+        wallet.submitTransaction(address(0x5), 1 ether, "");
+    }
+
+    // Test 7 : Vérifie qu'un signataire ne peut pas être ajouté deux fois.
+    function testAddExistingSigner() public {
+        vm.prank(signer1); // Simule signer1 comme appelant
+        vm.expectRevert("Already a signer");
+        wallet.addSigner(signer2); // Tente d'ajouter signer2 qui est déjà un signataire
+    }
+
+    // Test 8 : Vérifie qu'une transaction sans approbations suffisantes échoue.
+    function testExecuteTransactionWithoutApprovals() public {
+        vm.prank(signer1); // Simule signer1 comme appelant
+        wallet.submitTransaction(address(0x5), 1 ether, "");
+
+        vm.expectRevert("Not enough approvals");
+        vm.prank(signer1);
+        wallet.executeTransaction(0); // Tente d'exécuter sans approbations suffisantes
+    }
+
+    // Test 9 : Vérifie qu'un signataire inexistant ne peut pas être supprimé.
+    function testRemoveNonExistingSigner() public {
+        vm.prank(signer1);
+        vm.expectRevert("Not a signer");
+        wallet.removeSigner(nonSigner); // Tente de supprimer une adresse qui n'est pas un signataire
+    }
+
+    // Test 10 : Vérifie qu'une transaction avec une valeur nulle peut être soumise.
+    function testSubmitTransactionWithZeroValue() public {
+        vm.prank(signer1);
+        wallet.submitTransaction(address(0x5), 0, "");
+        (address to, uint256 value, , , ) = wallet.transactions(0);
+        assertEq(to, address(0x5), "Incorrect recipient");
+        assertEq(value, 0, "Incorrect value");
+    }
+
+    // Test 11 : Vérifie qu'une approbation déjà révoquée ne peut pas être révoquée à nouveau.
+    function testRevokeApprovalAlreadyRevoked() public {
+        vm.prank(signer1);
+        wallet.submitTransaction(address(0x5), 1 ether, "");
+
+        vm.prank(signer1);
+        wallet.approveTransaction(0); // Approuve la transaction
+
+        vm.prank(signer1);
+        wallet.revokeApproval(0); // Révoque l'approbation
+
+        vm.prank(signer1);
+        vm.expectRevert("Transaction not approved");
+        wallet.revokeApproval(0); // Tente de révoquer à nouveau
+    }
+
+    
+
 }
